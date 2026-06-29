@@ -77,6 +77,7 @@ def calculate_indicators(stock_data: pd.DataFrame) -> pd.DataFrame:
     # 8. Daily Return
     logger.debug("Calculating Daily Return.")
     stock_data["Daily Return"] = stock_data["Close"].pct_change()
+  
 
     # 9. Target calculation
     # Predict whether price increases by at least 2% within the next 5 trading days

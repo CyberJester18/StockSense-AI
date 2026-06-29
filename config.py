@@ -11,6 +11,20 @@ SYMBOL: str = "TCS.NS"
 START_DATE: str = "2015-01-01"
 END_DATE: str = "2025-01-01"
 
+# Stocks used for training
+STOCKS: List[str] = [
+    "TCS.NS",
+    "INFY.NS",
+    "RELIANCE.NS",
+    "HDFCBANK.NS",
+    "ICICIBANK.NS",
+    "SBIN.NS",
+    "LT.NS",
+    "ITC.NS",
+    "AXISBANK.NS",
+    "BHARTIARTL.NS",
+]
+
 # Features used for the machine learning model
 FEATURES: List[str] = [
     "Open",
@@ -30,6 +44,8 @@ FEATURES: List[str] = [
     "ATR",
     "VOLUME_MA20",
     "Daily Return",
+    
+
 ]
 
 # Target variable name
@@ -53,3 +69,4 @@ N_ITER: int = 15
 CV: int = 3
 SCORING: str = "f1"
 N_JOBS: int = -1
+
