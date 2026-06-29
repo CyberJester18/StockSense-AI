@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
@@ -41,15 +41,33 @@ def train_model(stock_data):
         shuffle=False,
     )
 
-    model = RandomForestClassifier(
-        n_estimators=300,
-        random_state=42,
+    param_grid = {
+    "n_estimators": [100, 200, 300, 500],
+    "max_depth": [5, 10, 15, 20, None],
+    "min_samples_split": [2, 5, 10],
+    "min_samples_leaf": [1, 2, 4],
+    "max_features": ["sqrt", "log2"],
+}
+
+    rf = RandomForestClassifier(random_state=42)
+
+    search = RandomizedSearchCV(
+    estimator=rf,
+    param_distributions=param_grid,
+    n_iter=15,
+    cv=3,
+    scoring="f1",
+    n_jobs=-1,
+    random_state=42,
     )
 
-    model.fit(X_train, y_train)
+    search.fit(X_train, y_train)
 
+    model = search.best_estimator_
+
+    print("\nBest Parameters:")
+    print(search.best_params_)
     predictions = model.predict(X_test)
-
     accuracy = accuracy_score(y_test, predictions)
     precision = precision_score(y_test, predictions)
     recall = recall_score(y_test, predictions)
