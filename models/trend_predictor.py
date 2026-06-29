@@ -1,79 +1,100 @@
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
+"""Module for training the trend prediction model.
+
+Uses a Random Forest Classifier and Randomized Search CV to tune hyperparameters
+and evaluate model performance on test data.
+"""
+
+import logging
+from typing import Tuple
+
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
+    confusion_matrix,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
-    confusion_matrix,
 )
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+
+import config
+
+# Set up module-level logger
+logger = logging.getLogger(__name__)
 
 
-def train_model(stock_data):
+def train_model(stock_data: pd.DataFrame) -> Tuple[RandomForestClassifier, float]:
+    """Splits data, tunes Random Forest hyperparameters, trains, and evaluates the model.
 
-    features = [
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Volume",
-        "MA20",
-        "MA50",
-        "EMA20",
-        "EMA50",
-        "RSI",
-        "MACD",
-        "MACD_SIGNAL",
-        "BB_UPPER",
-        "BB_LOWER",
-        "ATR",
-        "VOLUME_MA20",
-        "Daily Return",
-    ]
+    Args:
+        stock_data: Preprocessed stock DataFrame containing features and target.
 
-    X = stock_data[features]
-    y = stock_data["Target"]
+    Returns:
+        A tuple of:
+            - The trained best estimator (RandomForestClassifier).
+            - The accuracy of the model on the test dataset.
+    """
+    logger.info("Initializing train-test split for model training.")
 
+    X = stock_data[config.FEATURES]
+    y = stock_data[config.TARGET_COLUMN]
+
+    # Perform sequential (non-shuffled) train-test split for time-series data
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.2,
-        shuffle=False,
+        test_size=config.TEST_SIZE,
+        shuffle=config.SHUFFLE,
+        random_state=config.RANDOM_STATE,
     )
 
-    param_grid = {
-    "n_estimators": [100, 200, 300, 500],
-    "max_depth": [5, 10, 15, 20, None],
-    "min_samples_split": [2, 5, 10],
-    "min_samples_leaf": [1, 2, 4],
-    "max_features": ["sqrt", "log2"],
-}
+    logger.info(
+        "Train set shape: %s, Test set shape: %s", X_train.shape, X_test.shape
+    )
 
-    rf = RandomForestClassifier(random_state=42)
+    rf = RandomForestClassifier(random_state=config.RANDOM_STATE)
 
+    # Initialize RandomizedSearchCV with parameters from config
     search = RandomizedSearchCV(
-    estimator=rf,
-    param_distributions=param_grid,
-    n_iter=15,
-    cv=3,
-    scoring="f1",
-    n_jobs=-1,
-    random_state=42,
+        estimator=rf,
+        param_distributions=config.PARAM_GRID,
+        n_iter=config.N_ITER,
+        cv=config.CV,
+        scoring=config.SCORING,
+        n_jobs=config.N_JOBS,
+        random_state=config.RANDOM_STATE,
     )
 
+    logger.info(
+        "Running RandomizedSearchCV hyperparameter optimization (n_iter=%d, cv=%d)...",
+        config.N_ITER,
+        config.CV,
+    )
     search.fit(X_train, y_train)
 
     model = search.best_estimator_
+    logger.info("Best Parameters found: %s", search.best_params_)
 
-    print("\nBest Parameters:")
-    print(search.best_params_)
+    # Evaluation
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
-    precision = precision_score(y_test, predictions)
-    recall = recall_score(y_test, predictions)
-    f1 = f1_score(y_test, predictions)
+    precision = precision_score(y_test, predictions, zero_division=0)
+    recall = recall_score(y_test, predictions, zero_division=0)
+    f1 = f1_score(y_test, predictions, zero_division=0)
     cm = confusion_matrix(y_test, predictions)
 
+    # Log metrics
+    logger.info("Model training and evaluation complete.")
+    logger.info("Accuracy : %.6f", accuracy)
+    logger.info("Precision: %.6f", precision)
+    logger.info("Recall   : %.6f", recall)
+    logger.info("F1 Score : %.6f", f1)
+    logger.info("Confusion Matrix:\n%s", cm)
+
+    # Keep print statement-like logs for CLI compatibility
+    print("\nBest Parameters:")
+    print(search.best_params_)
     print("\nAccuracy :", accuracy)
     print("Precision:", precision)
     print("Recall   :", recall)
