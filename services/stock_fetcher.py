@@ -3,14 +3,15 @@
 This module provides utility functions to retrieve and preprocess stock market data
 for modeling and analysis.
 """
-
+import os
 import logging
 import pandas as pd
 import yfinance as yf
 
 # Set up module-level logger
 logger = logging.getLogger(__name__)
-
+CACHE_DIR = "data/cache"
+os.makedirs(CACHE_DIR, exist_ok=True)
 
 def get_stock_data(symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
     """Downloads historical stock price data and applies basic preprocessing.
@@ -41,18 +42,47 @@ def get_stock_data(symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
     )
 
     try:
-        stock_data = yf.download(
-            symbol, start=start_date, end=end_date, auto_adjust=False
+        cache_file = os.path.join(
+            CACHE_DIR,
+            f"{symbol.replace('.NS', '')}.csv"
         )
+
+        if os.path.exists(cache_file):
+
+            logger.info("Loading cached data for %s", symbol)
+
+            stock_data = pd.read_csv(
+                cache_file,
+                index_col=0,
+                parse_dates=True,
+            )
+
+        else:
+
+            logger.info("Downloading %s from Yahoo Finance...", symbol)
+
+            stock_data = yf.download(
+                symbol,
+                start=start_date,
+                end=end_date,
+                auto_adjust=False,
+            )
+            # Convert MultiIndex BEFORE saving
+            if isinstance(stock_data.columns, pd.MultiIndex):
+               stock_data.columns = stock_data.columns.get_level_values(0)
+
+            stock_data.to_csv(cache_file)
+            logger.info("Saved cache to %s", cache_file)
+
     except Exception as e:
         logger.error(
-            "An error occurred while downloading data for symbol %s: %s",
-            symbol,
-            str(e),
-        )
+                "An error occurred while downloading data for symbol %s: %s",
+                symbol,
+                str(e),
+            )
         raise RuntimeError(
-            f"Failed to download stock data for {symbol} due to: {e}"
-        ) from e
+                f"Failed to download stock data for {symbol} due to: {e}"
+            ) from e
 
     if stock_data.empty:
         logger.warning(
