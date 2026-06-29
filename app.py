@@ -1,9 +1,5 @@
 from services.stock_fetcher import get_stock_data
-from analysis.indicators import (
-    calculate_indicators,
-    calculate_rsi,
-    calculate_macd
-)
+from analysis.indicators import calculate_indicators
 from models.trend_predictor import train_model
 
 stock_data = get_stock_data(
@@ -13,8 +9,7 @@ stock_data = get_stock_data(
 )
 
 stock_data = calculate_indicators(stock_data)
-stock_data = calculate_rsi(stock_data)
-stock_data = calculate_macd(stock_data)
+
 stock_data = stock_data.dropna()
 model, accuracy = train_model(stock_data)
 print(stock_data.isnull().sum())
@@ -26,6 +21,6 @@ print(stock_data["Target"].value_counts())
 
 #print(stock_data[["Close", "Target"]].tail(10))
 #stock_data = calculate_indicators(stock_data)
-print(stock_data.info())
+#print(stock_data.info())
 
 #print(stock_data.isnull().sum())
