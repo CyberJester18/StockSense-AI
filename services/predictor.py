@@ -26,4 +26,7 @@ def predict_stock(symbol: str):
 
     prediction = model.predict(X)[0]
 
-    return prediction
+    probabilities = model.predict_proba(X)[0]
+    confidence = round(max(probabilities) * 100, 2)
+
+    return prediction, confidence

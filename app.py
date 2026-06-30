@@ -39,12 +39,13 @@ def predict(request: PredictionRequest):
                 detail="Stock symbol cannot be empty."
             )
 
-        prediction = predict_stock(symbol)
+        prediction, confidence = predict_stock(symbol)
 
         return {
             "symbol": symbol,
-            "prediction": "BUY" if prediction == 1 else "SELL"
-        }
+            "prediction": "BUY" if prediction == 1 else "SELL",
+            "confidence": confidence
+}
 
     except HTTPException:
         raise
