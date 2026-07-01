@@ -24,7 +24,7 @@ export function AboutModelView() {
           About StockSense-AI
         </h1>
         <p className="max-w-2xl font-sans text-base text-text-secondary leading-relaxed">
-          StockSense-AI leverages a machine learning classifier optimized for low-latency financial signal forecasting. By ingesting historical market candles, our system extracts momentum and volatility features to output highly confident, direction-focused trend predictions.
+          StockSense-AI is a machine learning web application that predicts BUY or SELL signals using historical stock market data. The application combines a React frontend, a FastAPI backend, and a Random Forest classifier to deliver real-time stock trend predictions.
         </p>
       </div>
 
@@ -41,25 +41,25 @@ export function AboutModelView() {
               Model Specifications
             </h3>
             <p className="font-sans text-sm text-text-secondary leading-relaxed">
-              The primary classifier is a **Random Forest Ensemble** trained with historical price data. It constructs multiple decision trees and averages their probabilistic votes to guard against overfitting on high-frequency market noise.
+              The primary classifier is a Random Forest Ensemble trained with historical price data. It constructs multiple decision trees and averages their probabilistic votes to guard against overfitting on high-frequency market noise.
             </p>
           </div>
           <div className="space-y-2.5 pt-2">
             <div className="flex items-center justify-between text-xs font-mono border-b border-border-card/40 pb-2">
-              <span className="text-text-secondary">Ensemble Estimators</span>
-              <span className="text-text-primary font-semibold">100 Trees</span>
+              <span className="text-text-secondary">Algorithm</span>
+              <span className="text-text-primary font-semibold">Random Forest Classifier</span>
             </div>
             <div className="flex items-center justify-between text-xs font-mono border-b border-border-card/40 pb-2">
-              <span className="text-text-secondary">Feature Criterion</span>
-              <span className="text-text-primary font-semibold">Gini Impurity</span>
+              <span className="text-text-secondary">Training Accuracy</span>
+              <span className="text-text-primary font-semibold">66.85%</span>
             </div>
             <div className="flex items-center justify-between text-xs font-mono border-b border-border-card/40 pb-2">
-              <span className="text-text-secondary">Max Tree Depth</span>
-              <span className="text-text-primary font-semibold">15 Nodes</span>
+              <span className="text-text-secondary">Prediction Output</span>
+              <span className="text-text-primary font-semibold">BUY / SELL</span>
             </div>
             <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-text-secondary">Training Split</span>
-              <span className="text-text-primary font-semibold">80% Train / 20% Test</span>
+              <span className="text-text-secondary">Confidence Score</span>
+              <span className="text-text-primary font-semibold">Probability Based</span>
             </div>
           </div>
         </div>
@@ -78,31 +78,82 @@ export function AboutModelView() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="rounded-lg bg-bg-base border border-border-card/40 p-3 space-y-1">
-              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">RSI (14)</span>
+              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">MA20</span>
               <p className="text-xs text-text-secondary leading-normal">
-                Relative Strength Index checks for overbought/oversold momentum triggers.
+                20-day Simple Moving Average tracking short-term momentum and baseline price trends.
               </p>
             </div>
             <div className="rounded-lg bg-bg-base border border-border-card/40 p-3 space-y-1">
-              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">MACD</span>
+              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">MA50</span>
               <p className="text-xs text-text-secondary leading-normal">
-                Moving Average Convergence Divergence spots trend velocity shifts.
+                50-day Simple Moving Average used to identify intermediate trend thresholds and support lines.
               </p>
             </div>
             <div className="rounded-lg bg-bg-base border border-border-card/40 p-3 space-y-1">
-              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">SMA (50/200)</span>
+              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">RSI</span>
               <p className="text-xs text-text-secondary leading-normal">
-                Golden/Death Crosses provide major macro support thresholds.
+                Relative Strength Index (14-period) tracking overbought and oversold conditions.
               </p>
             </div>
             <div className="rounded-lg bg-bg-base border border-border-card/40 p-3 space-y-1">
-              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">VOL-EMA</span>
+              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">Daily Return</span>
               <p className="text-xs text-text-secondary leading-normal">
-                Volume moving averages track real institutional accumulation.
+                Percentage rate of change in close price day-over-day, representing standard asset volatility.
               </p>
             </div>
+            <div className="rounded-lg bg-bg-base border border-border-card/40 p-3 space-y-1 sm:col-span-2">
+              <span className="font-mono text-[10px] text-precision-blue font-bold uppercase block">Volume</span>
+              <p className="text-xs text-text-secondary leading-normal">
+                Total traded shares within a session, confirming the strength or weakness of price trends.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Technology Stack */}
+        <div className="rounded-2xl border border-border-card bg-surface-card p-6 md:p-8 space-y-5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/80 border border-zinc-700/40 text-precision-blue">
+            <Layers className="h-5 w-5" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-sans text-lg font-semibold text-text-primary">
+              Technology Stack
+            </h3>
+            <p className="font-sans text-sm text-text-secondary leading-relaxed">
+              An engineering-grade framework stack selected for reliable computation, high-performance API throughput, and responsive user feedback.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {['Python', 'FastAPI', 'React', 'TypeScript', 'Tailwind CSS', 'Scikit-learn', 'Yahoo Finance', 'GitHub'].map((tech) => (
+              <span key={tech} className="rounded-md bg-bg-base border border-border-card/60 px-3 py-1.5 font-mono text-xs text-text-primary">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Card 4: Future Improvements */}
+        <div className="rounded-2xl border border-border-card bg-surface-card p-6 md:p-8 space-y-5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800/80 border border-zinc-700/40 text-precision-blue">
+            <Settings className="h-5 w-5" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-sans text-lg font-semibold text-text-primary">
+              Future Improvements
+            </h3>
+            <p className="font-sans text-sm text-text-secondary leading-relaxed">
+              Planned development roadmap items designed to enhance prediction accuracy, system flexibility, and analytical insights.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            {['LSTM', 'XGBoost', 'Portfolio Tracking', 'Real-time Alerts', 'User Authentication', 'Cloud Deployment'].map((improvement) => (
+              <div key={improvement} className="flex items-center gap-2 rounded-lg bg-bg-base border border-border-card/40 p-2.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-precision-blue" />
+                <span className="font-sans text-xs font-medium text-text-primary">{improvement}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -156,7 +207,7 @@ export function AboutModelView() {
               Scikit-learn Prediction
             </h4>
             <p className="font-sans text-xs text-text-secondary mt-1">
-              The feature vector is passed to the trained Random Forest Classifier. It evaluates probabilities to calculate the predicted trend direction (<code>BUY</code>, <code>SELL</code>, or <code>HOLD</code>) and its confidence score.
+              The feature vector is passed to the trained Random Forest Classifier. It evaluates probabilities to calculate the predicted trend direction (<code>BUY</code> or <code>SELL</code>) and its confidence score.
             </p>
           </div>
 
@@ -165,4 +216,4 @@ export function AboutModelView() {
 
     </div>
   );
-}
+  }
