@@ -1,0 +1,6 @@
+{
+  "name": "StockSense-AI",
+  "description": "Engineering-Grade AI Powered Stock Trend Prediction Dashboard",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
