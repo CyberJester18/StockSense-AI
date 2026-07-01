@@ -1,18 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { Session } from "@supabase/supabase-js";
 import { Header } from './components/Header';
 import { PredictorCard } from './components/PredictorCard';
 import { ModelDetailsCard } from './components/ModelDetailsCard';
 import { RecentPredictionsCard } from './components/RecentPredictionsCard';
 import { AboutModelView } from './components/AboutModelView';
 import { Footer } from './components/Footer';
+import { AuthContainer } from "./components/AuthContainer";
 import { predictStockTrend, getApiConfig } from './services/api';
+import { supabase } from "./services/supabase";
 import { PredictResponse, PredictionHistoryItem } from './types';
 import { Cpu, Globe, Info, AlertTriangle, Sparkles, Database } from 'lucide-react';
+
 
 export default function App() {
   // Navigation State
   const [activeTab, setActiveTab] = useState<'dashboard' | 'about'>('dashboard');
-
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   // API Config Status
   const apiConfig = getApiConfig();
   const [isSimulating, setIsSimulating] = useState<boolean>(!apiConfig.isConfigured);
@@ -53,6 +59,34 @@ export default function App() {
       timestamp: '09:42:12 AM',
     },
   ]);
+  useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session);
+    setAuthLoading(false);
+  });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setSession(session);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
+  useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session);
+    setAuthLoading(false);
+  });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setSession(session);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
 
   // Handle predicting stock trend
   const handlePredict = async (symbol: string) => {
@@ -106,17 +140,48 @@ export default function App() {
     setLastPrediction(null);
   };
 
+  if (authLoading) {
   return (
+    <div className="flex min-h-screen items-center justify-center bg-bg-base text-white text-xl">
+      Loading...
+    </div>
+  );
+}
+
+
+return (
     <div className="flex min-h-screen flex-col bg-bg-base text-text-primary selection:bg-precision-blue/30 selection:text-white">
       
       {/* Navigation Header */}
       <Header
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        isSimulating={isSimulating}
-        onToggleMode={handleToggleMode}
-        hasApiUrl={apiConfig.isConfigured}
-      />
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
+  isSimulating={isSimulating}
+  onToggleMode={handleToggleMode}
+  hasApiUrl={apiConfig.isConfigured}
+  user={
+    session?.user
+      ? {
+          uid: session.user.id,
+          email: session.user.email ?? "",
+          displayName:
+            session.user.user_metadata?.full_name ??
+            session.user.email?.split("@")[0] ??
+            "User",
+          emailVerified: !!session.user.email_confirmed_at,
+          photoURL:
+            session.user.user_metadata?.avatar_url ??
+            `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(
+              session.user.email ?? "user"
+            )}`,
+        }
+      : null
+  }
+  onSignInClick={() => setIsAuthOpen(true)}
+  onSignOut={async () => {
+    await supabase.auth.signOut();
+  }}
+/>
 
       {/* Main Body */}
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10 md:px-10 md:py-16">
@@ -193,7 +258,11 @@ export default function App() {
 
       {/* Persistent Technical Footer */}
       <Footer />
-
+      <AuthContainer
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={() => setIsAuthOpen(false)}
+/>
     </div>
   );
 }
